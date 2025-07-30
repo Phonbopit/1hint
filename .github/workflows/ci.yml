@@ -1,0 +1,45 @@
+name: CI
+on:
+  pull_request:
+  merge_group:
+    branches: [main, develop, release/**]
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  lint-check:
+    name: Linting & Testing
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - id: get-store-path
+        run: echo STORE_PATH=$(bun pm cache) >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v4
+        timeout-minutes: 5
+        id: cache-bun-store
+        with:
+          path: ${{ steps.get-store-path.outputs.STORE_PATH }}
+          key: bun-store-${{ hashFiles('bun.lockb') }}
+          restore-keys: |
+            bun-store-
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Lint and format check
+        run: bun run check
+
+      - name: Build frontend
+        run: bun run build
+
+      - uses: actions/cache@v4
+        timeout-minutes: 5
+        id: cache-build
+        with:
+          path: ./dist
+          key: build-${{ github.sha }}-${{ github.run_number }}

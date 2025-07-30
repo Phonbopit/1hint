@@ -12,9 +12,10 @@
   "app": {
     "windows": [
       {
-        "title": "one_hint",
-        "width": 800,
-        "height": 600
+        "title": "1Hint - Developer Tools",
+        "width": 1024,
+        "height": 768,
+        "titleBarStyle": "Transparent"
       }
     ],
     "security": {
