@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
 import clsx from 'clsx'
+import { useEffect, useState } from 'react'
 
 interface ThemeToggleProps {
   className?: string
