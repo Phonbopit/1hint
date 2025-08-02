@@ -10,12 +10,14 @@
     "frontendDist": "../dist"
   },
   "app": {
+    "withGlobalTauri": true,
     "windows": [
       {
         "title": "1Hint - Developer Tools",
         "width": 1024,
         "height": 768,
-        "titleBarStyle": "Transparent"
+        "titleBarStyle": "Transparent",
+        "theme": "Light"
       }
     ],
     "security": {
