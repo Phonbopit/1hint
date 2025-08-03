@@ -5,6 +5,7 @@ import ProxySettings from './components/ProxySettings'
 import ProxyStatus from './components/ProxyStatus'
 import AnvilNode from './components/AnvilNode'
 import Sidebar from './components/Sidebar'
+import RequestHistory from './components/RequestHistory'
 
 import './App.css'
 
@@ -47,16 +48,6 @@ function AnvilPage() {
   )
 }
 
-// Coming soon page component
-function ComingSoonPage({ title }: { title: string }) {
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
-      <p className="text-gray-600 mt-4">This page is coming soon...</p>
-    </div>
-  )
-}
-
 function App() {
   return (
     <div className="flex h-screen bg-gray-50">
@@ -66,7 +57,7 @@ function App() {
         <Routes>
           <Route path="/" element={<ProxyPage />} />
           <Route path="/anvil" element={<AnvilPage />} />
-          <Route path="/history" element={<ComingSoonPage title="Request History" />} />
+          <Route path="/history" element={<RequestHistory />} />
         </Routes>
       </div>
     </div>
