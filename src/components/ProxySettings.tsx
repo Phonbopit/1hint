@@ -1,13 +1,15 @@
 import { invoke } from '@tauri-apps/api/core'
 import { useState } from 'react'
 
+// Check if we're running in Tauri
+const isTauri = typeof window !== 'undefined' && (window as any).__TAURI__
+
 interface ProxySettingsProps {
   onProxyStart: (url: string) => void
   onProxyStop: () => void
 }
 
 function ProxySettings({ onProxyStart, onProxyStop }: ProxySettingsProps) {
-  const [apiKey, setApiKey] = useState('')
   const [port, setPort] = useState(8888)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -17,17 +19,13 @@ function ProxySettings({ onProxyStart, onProxyStop }: ProxySettingsProps) {
     setLoading(true)
     setError('')
 
+    if (!isTauri) {
+      setError('Proxy server can only be started in the desktop app, not in the web browser.')
+      setLoading(false)
+      return
+    }
+
     try {
-      // Store API key
-      await invoke('store_api_key', { key: apiKey })
-
-      // Test API key
-      const isValid = await invoke('test_api_key')
-      if (!isValid) {
-        throw new Error('Invalid API key')
-      }
-
-      // Start proxy server
       const proxyUrl = await invoke('start_proxy_server', { port })
 
       setProxyRunning(true)
@@ -40,6 +38,11 @@ function ProxySettings({ onProxyStart, onProxyStop }: ProxySettingsProps) {
   }
 
   const handleStop = async () => {
+    if (!isTauri) {
+      setError('Proxy server can only be controlled in the desktop app.')
+      return
+    }
+
     try {
       await invoke('stop_proxy_server')
       setProxyRunning(false)
@@ -68,25 +71,13 @@ function ProxySettings({ onProxyStart, onProxyStop }: ProxySettingsProps) {
         )}
 
         <div className="flex flex-col space-y-2">
-          <label className="text-sm font-medium text-gray-700">1inch API Key</label>
-          <input
-            type="password"
-            placeholder="Enter your 1inch API key"
-            value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
-            disabled={proxyRunning}
-            className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
-          />
-        </div>
-
-        <div className="flex flex-col space-y-2">
           <label className="text-sm font-medium text-gray-700">Port</label>
           <input
             type="number"
             value={port}
             onChange={(e) => setPort(parseInt(e.target.value))}
             disabled={proxyRunning}
-            className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+            className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
           />
         </div>
 
@@ -94,8 +85,8 @@ function ProxySettings({ onProxyStart, onProxyStop }: ProxySettingsProps) {
           {!proxyRunning ? (
             <button
               onClick={handleStart}
-              disabled={!apiKey || loading}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center"
+              disabled={loading}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer flex items-center"
             >
               {loading && (
                 <svg
@@ -123,7 +114,7 @@ function ProxySettings({ onProxyStart, onProxyStop }: ProxySettingsProps) {
           ) : (
             <button
               onClick={handleStop}
-              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+              className="px-4 py-2 bg-rose-600 text-white rounded-md hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 cursor-pointer"
             >
               Stop Proxy Server
             </button>
